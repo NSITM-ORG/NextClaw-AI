@@ -1,0 +1,70 @@
+{
+  "tenant": "Nextserve School of Information Technology and Management",
+  "version": "1.0.0",
+  "updated_at": "2026-09-21T12:00:00Z",
+  "skills": {
+    "skill_rag": {
+      "name": "School Knowledge RAG Search",
+      "module": "skills.skill_rag",
+      "class_name": "RAGSkill",
+      "enabled": true,
+      "tier": 1,
+      "description": "Semantic and keyword vector search over Nextserve course catalogs, tuition policies, fees, and FAQ databases.",
+      "channels": ["whatsapp", "telegram", "webhook", "email", "chat"]
+    },
+    "skill_messaging": {
+      "name": "Multi-Channel Messaging Engine",
+      "module": "skills.skill_messaging",
+      "class_name": "MessagingSkill",
+      "enabled": true,
+      "tier": 1,
+      "description": "Message dispatch and template formatting for Meta WhatsApp Cloud API and Telegram Bot API.",
+      "channels": ["whatsapp", "telegram", "webhook", "email", "chat"]
+    },
+    "skill_calendar": {
+      "name": "Academic Calendar & Notification Scheduler",
+      "module": "skills.skill_calendar",
+      "class_name": "CalendarSkill",
+      "enabled": true,
+      "tier": 1,
+      "description": "Manages cohort start dates, masterclasses, webinars, and exam schedules. Pre-event reminder trigger generator.",
+      "channels": ["whatsapp", "telegram", "webhook", "email", "chat"]
+    },
+    "skill_cms": {
+      "name": "Website CMS Staging & Publishing",
+      "module": "skills.skill_cms",
+      "class_name": "CMSSkill",
+      "enabled": true,
+      "tier": 2,
+      "publish_tier": 3,
+      "description": "Generates draft web copy, HTML/Markdown previews (Tier 2), and manages live website publication (Tier 3 approval).",
+      "channels": ["telegram", "webhook", "chat"]
+    },
+    "skill_telegram": {
+      "name": "Admin Telegram & Human-in-the-Loop Gateway",
+      "module": "skills.skill_telegram",
+      "class_name": "TelegramSkill",
+      "enabled": true,
+      "tier": 3,
+      "description": "Dispatches high-priority executive alerts and interactive Tier 3 approval cards to the Admin Telegram channel.",
+      "channels": ["telegram", "webhook"]
+    }
+  },
+  "tier_policies": {
+    "1": {
+      "name": "Safe / Read-Only",
+      "approval_required": false,
+      "description": "Executes automatically 24/7. Course checks, fees, FAQs, calendar lookups."
+    },
+    "2": {
+      "name": "Draft & Review",
+      "approval_required": false,
+      "description": "Generates draft content + preview card/link, pauses for user review before sending."
+    },
+    "3": {
+      "name": "High Risk / Administrative",
+      "approval_required": true,
+      "description": "Requires interactive Telegram Approval Card dispatch with [Approve] / [Reject] buttons to Admin."
+    }
+  }
+}

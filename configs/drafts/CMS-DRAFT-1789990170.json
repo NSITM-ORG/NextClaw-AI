@@ -1,0 +1,13 @@
+{
+  "draft_id": "CMS-DRAFT-1789990170",
+  "title": "October 2026 Admissions Open",
+  "slug": "october-2026-admissions-open",
+  "category": "admissions",
+  "audience": "All Students",
+  "content_markdown": "Admissions are now open for Fullstack Web and AI Engineering cohorts.",
+  "html_preview": "<div class=\"nextserve-announcement-card\" style=\"border:1px solid #e2e8f0; border-radius:12px; padding:24px; font-family:'Segoe UI', sans-serif; background:#ffffff; max-width:680px; margin:0 auto; box-shadow:0 4px 12px rgba(0,0,0,0.05);\">\n  <div style=\"display:flex; align-items:center; gap:8px; margin-bottom:12px;\">\n    <span style=\"background:#0284c7; color:#fff; font-size:12px; font-weight:bold; padding:4px 10px; border-radius:16px; text-transform:uppercase;\">admissions</span>\n    <span style=\"color:#64748b; font-size:13px;\">Target: All Students</span>\n  </div>\n  <h2 style=\"color:#0f172a; margin-top:0; font-size:22px; font-weight:700;\">October 2026 Admissions Open</h2>\n  <div style=\"color:#334155; line-height:1.6; font-size:15px;\">\n    Admissions are now open for Fullstack Web and AI Engineering cohorts.\n  </div>\n  <div style=\"margin-top:20px; padding-top:16px; border-top:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;\">\n    <span style=\"color:#94a3b8; font-size:12px;\">Nextserve School CMS Staging \u2022 Draft ID: CMS-DRAFT-1789990170</span>\n    <a href=\"https://nextserveschool.com/preview/CMS-DRAFT-1789990170\" style=\"color:#0284c7; text-decoration:none; font-weight:600; font-size:13px;\">Open Webview \u2197</a>\n  </div>\n</div>",
+  "preview_url": "https://nextserveschool.com/staging/preview/CMS-DRAFT-1789990170",
+  "status": "staged_for_review",
+  "tier": 2,
+  "created_at": "2026-09-21T11:29:30.379432+00:00"
+}

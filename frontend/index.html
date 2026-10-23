@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NextClaw | School AI System</title>
+  <meta name="description"
+    content="Next Claw Personal Assistant and School Operating AI featuring LangGraph workflows, persistent memory, pgvector semantic search, and interactive academic advising.">
+  <link rel="icon" type="image/png" href="assets/nextclaw_free_logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20261019_v4">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Navigation Header (OpenClaw-style Minimalist Topbar) -->
+    <header class="app-header">
+      <div class="header-left">
+        <a href="#tab-school-agent" class="brand-link" aria-label="NextClaw Home">
+          <img src="assets/nextclaw_free_logo.png" alt="NextClaw" class="brand-free-logo" width="34" height="34" />
+          <div class="brand-titles">
+            <span class="brand-title">NextClaw</span>
+            <span class="brand-sub">Autonomous School System</span>
+          </div>
+        </a>
+      </div>
+
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="tab-school-agent">
+          <span class="tab-icon">🤖</span>
+          AI Assistant
+        </button>
+        <button class="nav-tab" data-tab="tab-catalog">
+          <span class="tab-icon">📚</span>
+          Course Catalog
+        </button>
+        <button class="nav-tab" data-tab="tab-orchestrator">
+          <span class="tab-icon">⚡</span>
+          Automations
+        </button>
+        <button class="nav-tab" data-tab="tab-website-agent">
+          <span class="tab-icon">🌐</span>
+          Website Agent
+        </button>
+        <button class="nav-tab" data-tab="tab-social-agent">
+          <span class="tab-icon">📣</span>
+          Social Studio
+        </button>
+        <button class="nav-tab" data-tab="tab-student-registration">
+          <span class="tab-icon">🎓</span>
+          Student Registration
+        </button>
+        <button class="nav-tab" data-tab="tab-core-auth">
+          <span class="tab-icon">🛡️</span>
+          Security & Access
+        </button>
+        <button class="nav-tab" data-tab="tab-calendar">
+          <span class="tab-icon">📅</span>
+          Academic Calendar
+        </button>
+      </nav>
+
+      <div class="header-right">
+        <div id="backend-status-badge" class="status-badge connecting">
+          <span class="pulse-dot"></span>
+          <span id="backend-status-text">Connecting API...</span>
+        </div>
+        <a href="http://localhost:8000/docs" target="_blank" class="docs-btn" title="Open Swagger Documentation">
+          <span>Swagger Docs</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- TAB 1: AI Assistant -->
+      <section id="tab-school-agent" class="tab-content active">
+        <!-- OpenClaw-Style Hero Section (Full-Bleed Ambient Environment) -->
+        <header class="openclaw-hero" id="openclaw-hero">
+          <!-- Full-Environment Interactive Canvas & Ambient Stage -->
+          <div class="claw-stage-environment" id="claw-stage-environment">
+            <!-- Background Canvas spanning the full hero environment -->
+            <canvas id="claw-environment-canvas" class="claw-environment-canvas"></canvas>
+            
+            <!-- Ambient Dot Grid & Vignette Overlay -->
+            <div class="claw-ambient-vignette" aria-hidden="true"></div>
+
+            <!-- HUD Telemetry Floating Over Wings -->
+            <div class="claw-hud-overlay" aria-hidden="true">
+              <div class="hud-tag hud-top-left" id="hud-status-os">
+                <span class="hud-bracket">[</span><span class="hud-pulse-dot"></span>CAMPUS-OS:ONLINE<span class="hud-bracket">]</span>
+              </div>
+              <div class="hud-tag hud-top-right" id="hud-status-rag">
+                <span class="hud-bracket">[</span>RAG-VECTOR:READY<span class="hud-bracket">]</span>
+              </div>
+              <div class="hud-tag hud-bottom-left" id="hud-status-progs">
+                <span class="hud-bracket">[</span>NSITM:26-PROGS<span class="hud-bracket">]</span>
+              </div>
+              <div class="hud-tag hud-bottom-right" id="hud-status-hitl">
+                <span class="hud-bracket">[</span>LEVEL-3:HITL<span class="hud-bracket">]</span>
+              </div>
+            </div>
+
+            <!-- NextClaw Interactive Core Anchor -->
+            <div class="claw-center-anchor" id="claw-center-anchor">
+              <div class="claw-core-glow"></div>
+              <div class="claw-core-rings" aria-hidden="true"></div>
+              <img src="assets/nextclaw_free_logo.png" alt="NextClaw" class="hero-free-logo" id="hero-mascot-logo" width="84" height="84" />
+            </div>
+          </div>
+
+          <!-- Hero Typography & Direct Actions -->
+          <div class="hero-body-content">
+            <p class="hero-eyebrow">Autonomous · Runs on your machine · Built for NSITM</p>
+            <h1 class="hero-title">The AI that <em>really</em> runs campus operations.</h1>
+            <p class="hero-description">
+              Calculates tuition installments, checks admissions inquiries, and verifies payment receipts.<br>
+              Directly synced to your Telegram, WhatsApp relays, or right here on the web.<br>
+              Engineered for NSITM leadership — ready for students, admissions, and directors.
+            </p>
+            <p class="hero-ownership">
+              Zero manual spreadsheets. Instant GTBank confirmation alerts. Level 3 Human-in-the-Loop email safety.<br>
+              <span class="hero-ownership-highlight">Your 26 programmes. Your attendance policies. Your admissions. Your school.</span>
+            </p>
+            <div class="hero-actions">
+              <button type="button" class="hero-cta hero-cta-primary" onclick="document.getElementById('chat-input').focus()">
+                <span>Chat with NextClaw</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+              </button>
+              <button type="button" class="hero-cta hero-cta-ghost" onclick="document.querySelector('[data-tab=\'tab-catalog\']').click()">
+                <span>Browse 26 Programmes</span>
+              </button>
+              <a href="http://localhost:8000/docs" target="_blank" class="hero-cta hero-cta-ghost">
+                <span>Swagger API Docs</span>
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <div class="split-view">
+          <!-- Chat Panel -->
+          <div class="chat-container card glassmorphism">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="header-logo-free">
+                  <img src="assets/nextclaw_free_logo.png" alt="NEXT CLAW" class="mecha-header-avatar" />
+                  <span class="active-dot-ping"></span>
+                </div>
+                <div>
+                  <h2 class="card-title">Nextclaw Assistant</h2>
+                  <p class="card-desc">Academic Advising • Course Search • Tuition & Campus Policies</p>
+                </div>
+              </div>
+              <div class="header-actions">
+                <button type="button" id="open-voice-mode-btn" class="btn-ghost" title="Open Fullscreen Ambient Voice Mode" style="color: #38bdf8; display: flex; align-items: center; gap: 5px;">
+                  <span>🎙️</span> Voice Mode
+                </button>
+                <button type="button" id="toggle-auto-tts-btn" class="btn-ghost" title="Auto-speak incoming responses" style="display: flex; align-items: center; gap: 4px;">
+                  <span id="auto-tts-icon">🔇</span> Auto-Voice
+                </button>
+                <button id="clear-chat-btn" class="btn-ghost" title="Clear conversation">Clear</button>
+                <span class="model-tag">GPT-4o • Online</span>
+              </div>
+            </div>
+
+            <div id="chat-messages" class="chat-messages">
+              <div class="message assistant-message">
+                <div class="msg-avatar">
+                  <img src="assets/nextclaw_free_logo.png" alt="NEXT CLAW" class="mecha-msg-img" />
+                </div>
+                <div class="msg-body">
+                  <div class="msg-sender">Nextclaw</div>
+                  <div class="msg-text">
+                    Hello! 👋 I'm <strong>Nextclaw</strong>, your official NSITM academic assistant. How can I help you today?
+                    <br><br>
+                    Ask me about our <strong>26 Tech &amp; Management programmes</strong>, <strong>tuition instalment plans</strong>, <strong>attendance &amp; capstone policies</strong>, or click any suggestion below to start!
+                  </div>
+                  <button type="button" class="speak-msg-btn" onclick="speakMessageText(this)">
+                    <span>🔊 Listen</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Input Box with Voice Mic -->
+            <form id="chat-form" class="chat-input-bar">
+              <input type="text" id="chat-input" class="chat-input"
+                placeholder="Ask about courses, tuition, instalment plans, or policies (or click 🎙️ to speak)..." autocomplete="off"
+                required />
+              <button type="button" id="voice-mic-btn" class="voice-mic-btn" title="Click to speak (Whisper Microphone)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                  <line x1="12" y1="19" x2="12" y2="23"></line>
+                  <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+              </button>
+              <button type="submit" id="send-btn" class="send-btn">
+                <span>Send</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </form>
+
+            <!-- Quick Query Suggestions (Below Question Box) -->
+            <div class="quick-prompts">
+              <span class="quick-label">Suggestions:</span>
+              <button class="prompt-chip"
+                data-query="What are the fees, duration, and skills for Fullstack Web Development?">
+                Fullstack Web Dev (₦360k)
+              </button>
+              <button class="prompt-chip" data-query="How does the 3-part instalment payment plan work for UI/UX Design?">
+                UI/UX Instalment Plan
+              </button>
+              <button class="prompt-chip" data-query="What is the 80% attendance policy and capstone defense rule?">
+                Attendance & Capstone Policy
+              </button>
+              <button class="prompt-chip"
+                data-query="What management and short-term programmes are offered at Nextserve?">
+                Management & Short-Term
+              </button>
+            </div>
+          </div>
+
+          <!-- Tool Trace & Inspector Panel -->
+          <div class="side-panel">
+            <!-- Agent Identity Card -->
+            <div class="card glassmorphism agent-profile-card">
+              <div class="agent-profile-header">
+                <div class="agent-hero-logo-free">
+                  <img src="assets/nextclaw_free_logo.png" alt="NEXT CLAW" class="agent-hero-logo-img" />
+                </div>
+                <div class="agent-hero-meta">
+                  <div class="agent-hero-badge">ACTIVE</div>
+                  <h3 class="agent-hero-title">Nextclaw</h3>
+                </div>
+              </div>
+              <div class="agent-specs-list">
+                <div class="spec-row">
+                  <span class="spec-name">AI Model:</span>
+                  <span class="spec-val cyan">OpenAI GPT-4o</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name">Architecture:</span>
+                  <span class="spec-val">LangGraph ReAct</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name">Session Memory:</span>
+                  <span class="spec-val">PostgreSQL Checkpointer</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name">Semantic Search:</span>
+                  <span class="spec-val cyan">pgvector (1536-dim)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card glassmorphism">
+              <div class="card-header">
+                <h3 class="card-subtitle">Retrieved Sources & Context</h3>
+                <span class="live-pulse-badge">Live</span>
+              </div>
+              <div class="trace-box" id="tool-trace-container">
+                <div class="empty-trace">
+                  <span class="empty-icon">🔍</span>
+                  <p>Retrieved course catalog details and campus policy citations will appear here during conversations.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card glassmorphism">
+              <div class="card-header">
+                <h3 class="card-subtitle">API Integration</h3>
+              </div>
+              <div class="endpoint-info">
+                <div class="endpoint-badge"><span class="method post">POST</span> <code>/api/v1/school/query</code>
+                </div>
+                <p class="endpoint-desc">Connect directly via REST API with persistent session threads, structured tool
+                  execution, and citation grounding.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: Course Catalog -->
+      <section id="tab-catalog" class="tab-content">
+        <div class="catalog-header card glassmorphism">
+          <div>
+            <h2 class="card-title">Course Directory & Academic Policies</h2>
+            <p class="card-desc">Browse curriculum details, credit values, tuition rates, and faculty contacts.</p>
+          </div>
+          <div class="search-box">
+            <input type="text" id="catalog-search-input" placeholder="Search courses by code, title, or topic..."
+              class="search-input">
+            <button id="search-vectors-btn" class="btn-primary">Search</button>
+          </div>
+        </div>
+
+        <div id="catalog-grid" class="courses-grid mt-4">
+          <!-- Loaded dynamically via JS -->
+        </div>
+      </section>
+
+      <!-- TAB 3: Multi-Agent Composite Orchestrator Studio (Section 1 Pipeline) -->
+      <section id="tab-orchestrator" class="tab-content">
+        <div class="card glassmorphism">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="badge-phase" style="background: rgba(34, 211, 238, 0.15); color: #38bdf8; border: 1px solid rgba(34, 211, 238, 0.35);">Composite Pipeline</span>
+                <span class="badge-phase" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">Level 3 Governance</span>
+              </div>
+              <h2 class="card-title" style="margin-top: 6px;">⚡ Multi-Agent Composite Orchestrator Studio</h2>
+              <p class="card-desc">Coordinates Academic Advising, Autonomous Coding, and Website &amp; CMS specialist agents in an end-to-end composite pipeline under Level 3 Human-in-the-Loop governance.</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" id="refresh-pipelines-btn" class="docs-btn" title="Refresh Pipeline Runs">
+                <span>🔄 Recent Pipelines</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 1 Preset Blueprints Selector -->
+          <div class="mt-3">
+            <label class="form-label" style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-cyan);">
+              ✨ Select Section 1 Demonstration Blueprint:
+            </label>
+            <div class="preset-blueprints-grid">
+              <div class="blueprint-card selected" data-preset="course_launch" id="bp-course-launch">
+                <div class="blueprint-title">
+                  <span>📱</span> New Course Launch (Flutter TECH-MOB)
+                </div>
+                <div class="blueprint-desc">
+                  Curriculum &amp; 3-tranche tuition breakdown, code catalog patch, and live CMS announcement.
+                </div>
+              </div>
+
+              <div class="blueprint-card" data-preset="tuition_policy_update" id="bp-tuition-policy">
+                <div class="blueprint-title">
+                  <span>💳</span> Tuition &amp; Policy 2027 Update
+                </div>
+                <div class="blueprint-desc">
+                  80% refund threshold constraint, payment validation code patch, and student handbook CMS draft.
+                </div>
+              </div>
+
+              <div class="blueprint-card" data-preset="curriculum_patch" id="bp-curriculum-patch">
+                <div class="blueprint-title">
+                  <span>🧠</span> AI &amp; LLM Curriculum Expansion
+                </div>
+                <div class="blueprint-desc">
+                  LangGraph multi-agent lab module, test patch for tools, and portal announcement.
+                </div>
+              </div>
+
+              <div class="blueprint-card" data-preset="custom" id="bp-custom">
+                <div class="blueprint-title">
+                  <span>⚙️</span> Custom Multi-Agent Pipeline
+                </div>
+                <div class="blueprint-desc">
+                  Define custom objective across Academic, Coding, and Website specialist agents.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Workflow Controls -->
+          <div class="orchestrator-layout mt-3">
+            <div class="workflow-controls">
+              <div class="form-group">
+                <label class="form-label" for="comp-title-input">Pipeline Task Title</label>
+                <input type="text" id="comp-title-input" class="form-input"
+                  value="New Accredited Course Launch: Mobile App Dev with Flutter">
+              </div>
+
+              <div class="form-group mt-2">
+                <label class="form-label" for="comp-prompt-input">Pipeline Specification / Prompt</label>
+                <textarea id="comp-prompt-input" class="code-textarea" rows="3">Launch accredited diploma programme 'Mobile App Development with Flutter' (TECH-MOB) with tuition ₦280,000 (one-off) / ₦305,000 (instalment in 3 tranches: ₦122k, ₦91.5k, ₦91.5k), generate API catalog patch, and draft live CMS announcement.</textarea>
+              </div>
+
+              <div class="form-row mt-3">
+                <div>
+                  <label class="form-label" for="comp-category-select">Pipeline Workflow Category</label>
+                  <select id="comp-category-select" class="form-select">
+                    <option value="course_launch" selected>Accredited Course Launch</option>
+                    <option value="tuition_policy_update">Tuition &amp; Policy Update</option>
+                    <option value="curriculum_patch">Curriculum &amp; Agent Patch</option>
+                    <option value="custom">General Composite Request</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label" for="comp-governance-select">Human-in-the-Loop Gate</label>
+                  <select id="comp-governance-select" class="form-select">
+                    <option value="true" selected>Level 3: Protected (Telegram + Web Approval)</option>
+                    <option value="false">Level 1: Autonomous Execution</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <button type="button" id="run-composite-pipeline-btn" class="btn-primary w-full" style="padding: 11px; font-weight: 700; font-size: 0.95rem;">
+                  <span>🚀 Trigger Multi-Agent Composite Pipeline</span>
+                </button>
+              </div>
+
+              <!-- Level 3 Human in the Loop Decision Card -->
+              <div id="comp-hitl-box" class="approval-card glassmorphism mt-4 hidden">
+                <div class="approval-header">
+                  <span class="warning-badge">⚠️ Level 3 Human Approval Required</span>
+                  <span id="comp-hitl-thread-id" class="thread-label">Pipeline ID: -</span>
+                </div>
+                <p id="comp-hitl-description" class="approval-desc" style="line-height: 1.5;">
+                  The composite pipeline has synthesized academic specs, generated code patch, and prepared CMS staging. Authorization is required before applying patch and deploying to live production.
+                </p>
+                <div class="approval-actions">
+                  <button type="button" id="comp-approve-btn" class="btn-success">
+                    <span>✅ Authorize &amp; Deploy to Production</span>
+                  </button>
+                  <button type="button" id="comp-reject-btn" class="btn-danger">
+                    <span>✕ Reject &amp; Abort Pipeline</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pipeline Visual Stages & Subtabs -->
+            <div class="pipeline-view">
+              <!-- 5-Stage Composite Flow -->
+              <div class="composite-stages-grid" id="composite-stages-grid">
+                <div class="stage-card" id="stage-card-school">
+                  <div class="stage-header">
+                    <span>Stage 1</span>
+                    <span style="font-size: 14px;">🎓</span>
+                  </div>
+                  <div class="stage-title">School Agent</div>
+                  <span class="stage-status-badge badge-ready" id="status-school">Ready</span>
+                </div>
+
+                <div class="stage-card" id="stage-card-coding">
+                  <div class="stage-header">
+                    <span>Stage 2</span>
+                    <span style="font-size: 14px;">💻</span>
+                  </div>
+                  <div class="stage-title">Coding Agent</div>
+                  <span class="stage-status-badge badge-ready" id="status-coding">Ready</span>
+                </div>
+
+                <div class="stage-card" id="stage-card-website">
+                  <div class="stage-header">
+                    <span>Stage 3</span>
+                    <span style="font-size: 14px;">🌐</span>
+                  </div>
+                  <div class="stage-title">Website Agent</div>
+                  <span class="stage-status-badge badge-ready" id="status-website">Ready</span>
+                </div>
+
+                <div class="stage-card" id="stage-card-hitl">
+                  <div class="stage-header">
+                    <span>Stage 4</span>
+                    <span style="font-size: 14px;">🛡️</span>
+                  </div>
+                  <div class="stage-title">HITL Gate</div>
+                  <span class="stage-status-badge badge-ready" id="status-hitl">Ready</span>
+                </div>
+
+                <div class="stage-card" id="stage-card-dispatch">
+                  <div class="stage-header">
+                    <span>Stage 5</span>
+                    <span style="font-size: 14px;">🚀</span>
+                  </div>
+                  <div class="stage-title">Live Dispatch</div>
+                  <span class="stage-status-badge badge-ready" id="status-dispatch">Ready</span>
+                </div>
+              </div>
+
+              <!-- Subtab Output Inspector -->
+              <div class="agent-output-subtabs mt-3">
+                <button type="button" class="subtab-btn active" data-subtab="subtab-academic">🎓 Academic Specs</button>
+                <button type="button" class="subtab-btn" data-subtab="subtab-code">💻 Code Diff</button>
+                <button type="button" class="subtab-btn" data-subtab="subtab-cms">🌐 CMS &amp; SEO</button>
+                <button type="button" class="subtab-btn" data-subtab="subtab-dispatch">🚀 Dispatch &amp; Logs</button>
+              </div>
+
+              <!-- Subtab Contents -->
+              <div id="subtab-academic" class="subtab-content active" style="min-height: 180px;">
+                <div class="p-3" style="background: rgba(10, 15, 28, 0.7); border: 1px solid var(--border-subtle); border-radius: 8px; font-size: 0.85rem;">
+                  <div style="font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Authoritative Academic Synthesis:</div>
+                  <div id="academic-output-preview" class="text-muted" style="line-height: 1.5;">
+                    Standing by. Trigger a pipeline to view verified curriculum specs, tuition in Naira (₦), and 3-tranche instalment calculations.
+                  </div>
+                </div>
+              </div>
+
+              <div id="subtab-code" class="subtab-content" style="display: none; min-height: 180px;">
+                <div class="p-3" style="background: rgba(10, 15, 28, 0.7); border: 1px solid var(--border-subtle); border-radius: 8px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <span style="font-size: 0.8rem; font-weight: 700; color: #4ade80;" id="code-patch-meta">Patch Status: Ready</span>
+                    <span style="font-size: 0.75rem; color: var(--accent-cyan);" id="code-branch-meta">Branch: patch/pending</span>
+                  </div>
+                  <pre id="code-diff-preview" class="code-textarea" style="height: 140px; margin: 0; white-space: pre-wrap;">// Unified Git Diff from Coding Agent will appear here...</pre>
+                </div>
+              </div>
+
+              <div id="subtab-cms" class="subtab-content" style="display: none; min-height: 180px;">
+                <div class="p-3" style="background: rgba(10, 15, 28, 0.7); border: 1px solid var(--border-subtle); border-radius: 8px; font-size: 0.85rem;">
+                  <div class="metric-item">
+                    <span class="metric-label">Staging Slug:</span>
+                    <span id="cms-slug-preview" class="metric-val text-accent">courses/tech-mob</span>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-label">SEO Title:</span>
+                    <span id="cms-seo-title-preview" class="metric-val text-silver">-</span>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-label">Meta Description:</span>
+                    <span id="cms-seo-desc-preview" class="metric-val text-muted">-</span>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-label">Preflight Health:</span>
+                    <span id="cms-preflight-badge" class="badge badge-success">HTTP 200 OK</span>
+                  </div>
+                </div>
+              </div>
+
+              <div id="subtab-dispatch" class="subtab-content" style="display: none; min-height: 180px;">
+                <div class="terminal-logs" id="orchestrator-logs" style="height: 180px;">
+                  <div class="log-line text-muted">[Ready] Multi-Agent Composite Pipeline engine standing by.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: Website Agent CMS Studio (Phase 4) -->
+      <section id="tab-website-agent" class="tab-content">
+        <div class="grid-2-col">
+          <!-- Left Column: Draft Update Proposer -->
+          <div class="card glassmorphism">
+            <div class="card-header">
+              <h2 class="card-title">🌐 Website Agent CMS Studio</h2>
+              <span class="badge-phase">Level 3 Approval Gate</span>
+            </div>
+            <p class="section-desc">Propose website content updates. The agent generates structured drafts, computes SEO
+              metadata, and locks execution until human approval is granted.</p>
+
+            <form id="website-agent-form" class="mt-3">
+              <div class="form-group">
+                <label class="form-label">Natural Language Prompt / Update Query</label>
+                <input type="text" id="ws-query" class="form-input"
+                  value="Update tuition policies with 2027 deadlines and payment options."
+                  placeholder="e.g. Update CS201 Data Structures schedule...">
+              </div>
+              <div class="grid-2-col mt-2">
+                <div class="form-group">
+                  <label class="form-label">Target Page / Slug</label>
+                  <input type="text" id="ws-target" class="form-input" value="tuition-and-fees"
+                    placeholder="courses/cs101 or tuition-and-fees">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Page Type</label>
+                  <select id="ws-type" class="form-select">
+                    <option value="course">Course Page</option>
+                    <option value="policy" selected>Policy / Tuition Page</option>
+                    <option value="general">General Page</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group mt-2">
+                <label class="form-label">Proposed Page Title</label>
+                <input type="text" id="ws-title" class="form-input" value="Tuition & Financial Aid 2027"
+                  placeholder="e.g. CS101: Introduction to Computer Science">
+              </div>
+              <div class="form-group mt-2">
+                <label class="form-label">Draft Content (Markdown)</label>
+                <textarea id="ws-content" class="code-textarea"
+                  rows="4"># Tuition Policies 2027
+
+All undergraduate and graduate tuition payments for the 2027 academic year must be submitted by September 15. Flexible payment plans are available.</textarea>
+              </div>
+
+              <div class="mt-3">
+                <button type="submit" id="ws-submit-btn" class="btn-primary">
+                  <span>Propose Update & Generate SEO</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right Column: Approval Ticket & Preflight Deployment Studio -->
+          <div class="card glassmorphism">
+            <div class="card-header">
+              <h2 class="card-title">🛡️ Approval Gate & Deployment Status</h2>
+            </div>
+
+            <div id="ws-status-card" class="status-card-box mt-3" style="display: none;">
+              <div class="metric-item">
+                <span class="metric-label">Draft ID:</span>
+                <span id="ws-draft-id" class="metric-val text-accent">-</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Approval Ticket ID:</span>
+                <span id="ws-approval-id" class="metric-val text-warning">-</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Gate Status:</span>
+                <span id="ws-gate-status" class="badge badge-pending">PENDING APPROVAL</span>
+              </div>
+              <div class="metric-item mt-2">
+                <span class="metric-label">Generated SEO Title:</span>
+                <span id="ws-seo-title" class="metric-val text-muted">-</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Meta Description:</span>
+                <span id="ws-seo-desc" class="metric-val text-muted">-</span>
+              </div>
+
+              <div class="action-buttons mt-3">
+                <button id="ws-approve-btn" class="btn-success">
+                  <span>✅ Grant Human Approval (Unlock Gate)</span>
+                </button>
+                <button id="ws-publish-btn" class="btn-primary" style="margin-top: 8px;">
+                  <span>🚀 Run Preflight & Deploy to Production</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="ws-feedback" class="mt-3 text-sm">
+              <span class="text-muted">Propose a website update on the left to test the Level 3 Human-in-the-Loop gate
+                and automated deployment audit log.</span>
+            </div>
+
+            <div class="mt-4">
+              <h3 class="card-title" style="font-size: 14px; margin-bottom: 8px;">Deployment Audit Log History</h3>
+              <div id="ws-audit-logs" class="terminal-logs" style="max-height: 140px; overflow-y: auto;">
+                <div class="log-line text-muted">[System] Deployment audit log active. Ready for draft submissions.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: Content & Social Media Agent Studio (Phase 6) -->
+      <section id="tab-social-agent" class="tab-content">
+        <div class="grid-2-col">
+          <!-- Left Column: Social Campaign Generator -->
+          <div class="card glassmorphism">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="badge-phase" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35);">Phase 6 Complete</span>
+                  <span class="badge-phase">Level 3 Governance</span>
+                </div>
+                <h2 class="card-title" style="margin-top: 6px;">📣 Content &amp; Social Agent Studio</h2>
+                <p class="card-desc">Generate multi-channel marketing copy, hashtag strategies, and scheduled releases grounded in institutional truth.</p>
+              </div>
+            </div>
+
+            <form id="social-generator-form" class="mt-3">
+              <div class="form-group">
+                <label class="form-label" for="social-campaign-select">Target Institutional Campaign (from MEMORY.md)</label>
+                <select id="social-campaign-select" class="form-select">
+                  <option value="camp_cohort_flagship" selected>Cohort 3 (2027) Flagship Intake (All 26 Programmes)</option>
+                  <option value="camp_content_pitch">Nextserve Content Pitch Contest 2026 (₦450k Budget)</option>
+                  <option value="camp_waec_finisher">WAEC Finisher Tech Transition Campaign</option>
+                  <option value="camp_summer_immersion">Summer Tech Immersion Programme</option>
+                  <option value="camp_alumni_reactivation">Alumni Reactivation Drive (10,000+ Grads)</option>
+                  <option value="camp_webinar_series">10-Part Free Role-Targeted Webinar Series</option>
+                  <option value="custom">Custom Marketing Announcement</option>
+                </select>
+              </div>
+
+              <div class="form-group mt-3">
+                <label class="form-label" for="social-topic-input">Campaign Topic / Headline *</label>
+                <input type="text" id="social-topic-input" class="form-input"
+                  value="Announcing Cohort 3 Admissions: Master Accredited Tech Diplomas with 3-Tranche Instalments"
+                  placeholder="e.g. Master Fullstack Web Dev or UI/UX Design..." required>
+              </div>
+
+              <div class="grid-2-col mt-3">
+                <div class="form-group">
+                  <label class="form-label" for="social-tone-select">Copy Voice &amp; Tone</label>
+                  <select id="social-tone-select" class="form-select">
+                    <option value="inspiring" selected>Inspiring &amp; Transformational</option>
+                    <option value="educational">Educational &amp; Value-First</option>
+                    <option value="urgent_admissions">Urgent Admissions Window</option>
+                    <option value="professional">Professional Thought Leadership</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="social-course-select">Associated Programme (Optional)</label>
+                  <select id="social-course-select" class="form-select">
+                    <option value="" selected>All 26 Programmes</option>
+                    <option value="Fullstack Web Development">Fullstack Web Dev (TECH-FSW)</option>
+                    <option value="Frontend Web Development">Frontend Web Dev (TECH-FEW)</option>
+                    <option value="Mobile App Development with Flutter">Flutter Mobile Dev (TECH-MOB)</option>
+                    <option value="UI/UX Product Design">UI/UX Design (TECH-DES)</option>
+                    <option value="AI & Large Language Model Engineering">AI &amp; LLM Engineering (TECH-AI)</option>
+                    <option value="Cybersecurity & Ethical Hacking">Cybersecurity (TECH-SEC)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group mt-3">
+                <label class="form-label">Target Multi-Channel Platforms</label>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px;">
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--text-silver); cursor: pointer;">
+                    <input type="checkbox" id="chk-twitter" checked> 🐦 X / Twitter
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--text-silver); cursor: pointer;">
+                    <input type="checkbox" id="chk-linkedin" checked> 💼 LinkedIn
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--text-silver); cursor: pointer;">
+                    <input type="checkbox" id="chk-instagram" checked> 📸 Instagram
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--text-silver); cursor: pointer;">
+                    <input type="checkbox" id="chk-whatsapp" checked> 💬 WhatsApp
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--text-silver); cursor: pointer;">
+                    <input type="checkbox" id="chk-facebook"> 👥 Facebook
+                  </label>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <button type="submit" id="generate-social-btn" class="btn-primary w-full" style="padding: 10px; font-weight: 700;">
+                  <span>⚡ Generate Multi-Channel Campaign</span>
+                </button>
+              </div>
+            </form>
+
+            <!-- Campaign Objective Callout Box -->
+            <div id="campaign-brief-box" class="p-3 mt-3" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: 0.82rem;">
+              <div style="font-weight: 700; color: var(--accent-cyan); margin-bottom: 4px;" id="camp-brief-title">Campaign Brief: Flagship Intake</div>
+              <div class="text-muted" id="camp-brief-desc" style="line-height: 1.45;">
+                Target: Prospective tech students across Nigeria and diaspora. Objective: Drive enrollments with 3-tranche instalment affordability.
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Multi-Platform Previews & Level 3 Approval Gate -->
+          <div class="card glassmorphism">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <h2 class="card-title">📱 Multi-Platform Live Previews</h2>
+              <span id="social-gate-badge" class="badge badge-pending">PENDING APPROVAL</span>
+            </div>
+
+            <!-- Platform Switcher Tabs -->
+            <div class="social-tabs-nav mt-3">
+              <button type="button" class="social-tab-btn active" data-platform="x_twitter">
+                <span>🐦</span> X / Twitter
+              </button>
+              <button type="button" class="social-tab-btn" data-platform="linkedin">
+                <span>💼</span> LinkedIn
+              </button>
+              <button type="button" class="social-tab-btn" data-platform="instagram">
+                <span>📸</span> Instagram
+              </button>
+              <button type="button" class="social-tab-btn" data-platform="whatsapp">
+                <span>💬</span> WhatsApp
+              </button>
+              <button type="button" class="social-tab-btn" data-platform="facebook">
+                <span>👥</span> Facebook
+              </button>
+            </div>
+
+            <!-- Preview Card -->
+            <div class="social-preview-container">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span id="preview-platform-label" style="font-size: 0.8rem; font-weight: 700; color: var(--accent-cyan);">X / Twitter (280 Max)</span>
+                <span id="char-counter" class="char-counter-badge char-under">0 / 280</span>
+              </div>
+
+              <textarea id="social-copy-preview" class="code-textarea" rows="7" style="font-size: 0.88rem; line-height: 1.5; color: #f1f5f9;">Click 'Generate Multi-Channel Campaign' on the left to synthesize high-converting copy across all platforms...</textarea>
+
+              <div id="social-hashtags-container" class="mt-2" style="font-size: 0.78rem; color: #38bdf8; font-family: var(--font-code);">
+                #NextserveSchool #TechSkills #NSITM
+              </div>
+
+              <!-- AI Image / Banner Prompt -->
+              <div class="media-prompt-box">
+                <div class="media-prompt-title">
+                  <span>🎨</span> AI Banner Creative Prompt for Marketing:
+                </div>
+                <div id="media-prompt-display" class="media-prompt-text">
+                  A high-contrast visual graphic in deep navy and electric teal with bold typography for Nextserve admissions.
+                </div>
+              </div>
+            </div>
+
+            <!-- Level 3 HITL Approval Action Card -->
+            <div class="p-3 mt-3" style="background: rgba(16, 24, 40, 0.85); border: 1px solid var(--border-mecha); border-radius: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 0.8rem; font-weight: 700; color: #fbbf24;">🛡️ Level 3 Safety Governance</span>
+                <span id="social-bundle-id" class="text-dim" style="font-family: var(--font-code); font-size: 0.74rem;">Bundle: -</span>
+              </div>
+              <p class="text-sm text-muted mb-3" style="font-size: 0.8rem;">
+                Social copy is held in pending status until reviewed by designated administrator. Telegram interactive card dispatched automatically.
+              </p>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" id="approve-publish-social-btn" class="btn-success" style="flex: 1;">
+                  <span>🚀 Authorize &amp; Publish Now</span>
+                </button>
+                <button type="button" id="approve-schedule-social-btn" class="btn-primary" style="flex: 1;">
+                  <span>⏰ Authorize &amp; Schedule</span>
+                </button>
+                <button type="button" id="reject-social-btn" class="btn-danger">
+                  <span>✕ Reject</span>
+                </button>
+              </div>
+              <div id="social-review-feedback" class="mt-2 text-sm text-success" style="display: none;"></div>
+            </div>
+
+            <!-- Recent Social Posts Table -->
+            <div class="mt-4">
+              <div class="card-header" style="padding: 0 0 8px 0;">
+                <h3 class="card-title" style="font-size: 14px;">Recent Social Posts Directory</h3>
+                <button type="button" id="refresh-social-btn" class="btn-ghost" style="padding: 3px 8px; font-size: 11px;">🔄 Refresh</button>
+              </div>
+              <div style="max-height: 160px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                  <thead>
+                    <tr style="border-bottom: 1px solid var(--border-subtle); color: var(--text-dim); text-align: left;">
+                      <th style="padding: 6px 4px;">Platform</th>
+                      <th style="padding: 6px 4px;">Topic</th>
+                      <th style="padding: 6px 4px;">Chars</th>
+                      <th style="padding: 6px 4px;">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="social-posts-table-body">
+                    <tr>
+                      <td colspan="4" style="padding: 12px; text-align: center; color: var(--text-muted);">
+                        Loading social post drafts...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: Security & Access Control -->
+      <section id="tab-core-auth" class="tab-content">
+        <div class="grid-2-col">
+          <div class="card glassmorphism">
+            <div class="card-header">
+              <h2 class="card-title">Role-Based Access & Security</h2>
+            </div>
+            <div class="auth-tester-form mt-3">
+              <div class="form-group">
+                <label class="form-label">Account Email</label>
+                <input type="email" id="auth-email" class="form-input" value="operator@nextclaw.ai">
+              </div>
+              <div class="form-group mt-2">
+                <label class="form-label">Assigned Role</label>
+                <select id="auth-role" class="form-select">
+                  <option value="Support Admin" selected>Support Admin</option>
+                  <option value="Instructor">Instructor</option>
+                  <option value="Developer">Developer</option>
+                  <option value="Owner">Owner</option>
+                </select>
+              </div>
+              <button id="generate-token-btn" class="btn-primary mt-3">Generate Session Token</button>
+
+              <div class="mt-4">
+                <label class="form-label">Active Session Token (Bearer JWT)</label>
+                <textarea id="jwt-token-display" class="code-textarea" readonly rows="3"
+                  placeholder="Generated token will appear here..."></textarea>
+              </div>
+
+              <div class="mt-3">
+                <button id="verify-token-btn" class="btn-ghost">Verify Access (/api/v1/auth/me)</button>
+                <div id="auth-test-result" class="mt-2 text-sm"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card glassmorphism">
+            <div class="card-header">
+              <h2 class="card-title">System & Infrastructure Status</h2>
+            </div>
+            <div class="health-metrics mt-3">
+              <div class="metric-item">
+                <span class="metric-label">Assistant Identity:</span>
+                <span class="metric-val text-accent">Nextclaw</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Database Engine:</span>
+                <span class="metric-val text-success">PostgreSQL 16 (pgvector active)</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Backend API:</span>
+                <span class="metric-val text-success">http://localhost:8000</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Web Client:</span>
+                <span class="metric-val text-success">http://localhost:3000</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Session Memory:</span>
+                <span class="metric-val text-accent">PostgreSQL Persistent Checkpointer</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Embedding Model:</span>
+                <span class="metric-val text-accent">OpenAI text-embedding-3-small (1536-dim)</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Reasoning Model:</span>
+                <span class="metric-val text-accent">OpenAI GPT-4o</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: Student Registration & Telegram Hub -->
+      <section id="tab-student-registration" class="tab-content">
+        <div class="grid-2-col">
+          <!-- Left: Registration Form -->
+          <div class="card glassmorphism">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="header-logo-frame">
+                  <span style="font-size: 24px;">🎓</span>
+                </div>
+                <div>
+                  <h2 class="card-title">Student Registration & Telegram Alert</h2>
+                  <p class="card-desc">Enroll students and automatically trigger instant Telegram alerts</p>
+                </div>
+              </div>
+            </div>
+
+            <form id="student-reg-form" class="mt-4" onsubmit="return false;">
+              <div class="form-group">
+                <label class="form-label" for="reg-full-name">Student Full Name *</label>
+                <input type="text" id="reg-full-name" class="form-input" value="Paschal Okpalaugo" required placeholder="e.g. Paschal Okpalaugo">
+              </div>
+
+              <div class="form-group mt-3">
+                <label class="form-label" for="reg-email">Email Address *</label>
+                <input type="email" id="reg-email" class="form-input" value="paschal@nextserve.ai" required placeholder="e.g. student@nextserve.ai">
+              </div>
+
+              <div class="form-group mt-3">
+                <label class="form-label" for="reg-phone">Phone Number</label>
+                <input type="tel" id="reg-phone" class="form-input" value="+1 (555) 234-5678" placeholder="e.g. +1 (555) 000-0000">
+              </div>
+
+              <div class="form-group mt-3">
+                <label class="form-label" for="reg-course">Select Course *</label>
+                <select id="reg-course" class="form-select">
+                  <option value="Full-Stack AI Course" selected>Full-Stack AI Course</option>
+                  <option value="CS101 - Intro to Computer Science & Python">CS101 - Intro to Computer Science & Python</option>
+                  <option value="CS201 - Data Structures and Algorithms">CS201 - Data Structures and Algorithms</option>
+                  <option value="CS350 - Artificial Intelligence & Machine Learning">CS350 - Artificial Intelligence & Machine Learning</option>
+                  <option value="DS105 - Introduction to Data Science">DS105 - Introduction to Data Science</option>
+                  <option value="BUS301 - Corporate Finance & Accounting">BUS301 - Corporate Finance & Accounting</option>
+                </select>
+              </div>
+
+              <div class="form-group mt-3">
+                <label class="form-label" for="reg-notes">Special Requests / Notes</label>
+                <textarea id="reg-notes" class="form-input" rows="2" placeholder="e.g. Needs orientation schedule on weekdays...">Requesting orientation schedule details and course curriculum overview.</textarea>
+              </div>
+
+              <div class="mt-4">
+                <button type="button" id="submit-registration-btn" class="btn-primary w-full">
+                  <span>🚀 Register Student & Fire Telegram Alert</span>
+                </button>
+              </div>
+            </form>
+
+            <div id="reg-feedback-card" class="status-card-box mt-4" style="display: none;">
+              <div class="metric-item">
+                <span class="metric-label">Registration Status:</span>
+                <span id="reg-status-badge" class="badge badge-success">SAVED TO DB ✅</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Registration ID:</span>
+                <span id="reg-id-display" class="metric-val text-accent">-</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Telegram Alert:</span>
+                <span id="reg-telegram-status" class="metric-val text-success">SENT ✈️</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Telegram Message ID:</span>
+                <span id="reg-msg-id-display" class="metric-val text-muted">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Executive Daily Summary & Recent Registrations -->
+          <div class="card glassmorphism">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="header-logo-frame">
+                  <span style="font-size: 24px;">📊</span>
+                </div>
+                <div>
+                  <h2 class="card-title">Executive Briefing & Directory</h2>
+                  <p class="card-desc">Generate daily summaries and view live enrollment records</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Executive Summary Generator Box -->
+            <div class="p-3 mt-3" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-mecha); border-radius: var(--radius-md);">
+              <h3 style="font-size: 15px; font-weight: 600; color: var(--text-silver); margin-bottom: 6px;">Executive Daily Briefing Generator</h3>
+              <p class="text-sm text-muted mb-3">
+                Queries total student registrations, pending Level 3 approval tickets, and specialist agent health, then delivers an instant summary to Telegram.
+              </p>
+              <button type="button" id="trigger-summary-btn" class="btn-primary">
+                <span>⚡ Send Executive Daily Summary to Telegram</span>
+              </button>
+              <div id="summary-result-box" class="mt-3 text-sm text-accent" style="display: none;"></div>
+            </div>
+
+            <!-- Enrolled Students Table -->
+            <div class="mt-4">
+              <div class="card-header" style="padding: 0 0 10px 0;">
+                <h3 class="card-title" style="font-size: 15px;">Live Enrolled Students</h3>
+                <button type="button" id="refresh-students-btn" class="btn-ghost" style="padding: 4px 10px; font-size: 12px;">🔄 Refresh</button>
+              </div>
+
+              <div id="students-table-container" style="max-height: 250px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                  <thead>
+                    <tr style="border-bottom: 1px solid var(--border-subtle); color: var(--text-dim); text-align: left;">
+                      <th style="padding: 8px 4px;">Student</th>
+                      <th style="padding: 8px 4px;">Course</th>
+                      <th style="padding: 8px 4px;">Reg ID</th>
+                      <th style="padding: 8px 4px;">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="students-table-body">
+                    <tr>
+                      <td colspan="4" style="padding: 16px; text-align: center; color: var(--text-muted);">
+                        Loading enrolled students...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 8: Academic Calendar & Real-Time Telegram Dispatcher -->
+      <section id="tab-calendar" class="tab-content">
+        <!-- Top Hero Card for Calendar -->
+        <div class="card glassmorphism" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(16, 24, 40, 0.95), rgba(15, 23, 42, 0.98)); border: 1px solid var(--border-mecha);">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div class="card-title-group" style="display: flex; align-items: center; gap: 1rem;">
+              <div class="header-logo-frame" style="width: 52px; height: 52px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 28px;">📅</span>
+              </div>
+              <div>
+                <h2 class="card-title" style="margin: 0; font-size: 1.35rem;">NextClaw Academic Calendar & Telegram Hub</h2>
+                <p class="card-desc" style="margin: 4px 0 0; color: var(--text-dim);">Live schedules for cohorts, orientation webinars, masterclasses, and capstone demo days</p>
+              </div>
+            </div>
+
+            <!-- Telegram Dispatch Control -->
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+              <div style="background: rgba(34, 211, 238, 0.08); border: 1px solid rgba(34, 211, 238, 0.25); border-radius: 8px; padding: 6px 12px; display: flex; align-items: center; gap: 8px;">
+                <span class="pulse-dot" style="background-color: #22d3ee; width: 6px; height: 6px;"></span>
+                <span style="font-size: 0.78rem; color: var(--text-silver);">Telegram Target: <strong style="color: #38bdf8;">Paschal (@Godly_Paschal)</strong></span>
+              </div>
+              <button type="button" id="send-calendar-tg-btn" class="btn-primary" style="display: flex; align-items: center; gap: 8px;">
+                <span>📲 Send Calendar to Telegram</span>
+              </button>
+              <button type="button" id="refresh-calendar-btn" class="docs-btn" title="Refresh Calendar">
+                <span>🔄 Refresh</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Telegram Notification Status Feedback -->
+          <div id="calendar-tg-status" style="display: none; margin-top: 1rem; padding: 0.85rem 1.25rem; border-radius: 8px; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.4); font-size: 0.85rem;">
+            <!-- Dynamic feedback message here -->
+          </div>
+
+          <!-- Metrics Row -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem;">
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.85rem 1rem;">
+              <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.06em;">Next Upcoming Event</div>
+              <div id="cal-metric-next-title" style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin: 4px 0;">Orientation Webinar</div>
+              <div id="cal-metric-next-countdown" style="font-size: 0.78rem; color: #4ade80; font-weight: 600;">in 2 days (Sept 23)</div>
+            </div>
+
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.85rem 1rem;">
+              <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.06em;">Cohort Kick-Off</div>
+              <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin: 4px 0;">October 2026 Cohort</div>
+              <div style="font-size: 0.78rem; color: #38bdf8; font-weight: 600;">Wednesday, Sept 30, 2026</div>
+            </div>
+
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.85rem 1rem;">
+              <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.06em;">Autonomous Cron Sync</div>
+              <div style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin: 4px 0;">Daily at 08:00 AM UTC</div>
+              <div style="font-size: 0.78rem; color: #a78bfa; font-weight: 600;">Alerts sent 48h prior</div>
+            </div>
+
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.85rem 1rem;">
+              <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.06em;">Total Scheduled Events</div>
+              <div id="cal-metric-total" style="font-weight: 700; color: #f8fafc; font-size: 0.95rem; margin: 4px 0;">4 Active Milestones</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Window: Next 60 Days</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Events Grid Section -->
+        <div id="calendar-events-container" class="grid-2-col">
+          <div style="grid-column: span 2; text-align: center; padding: 2rem; color: var(--text-muted);">
+            Loading academic calendar events...
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Dedicated Ambient Voice Assistant Modal Overlay -->
+  <div id="voice-modal" class="voice-modal-overlay">
+    <div class="voice-modal-card">
+      <button type="button" id="voice-modal-close" class="voice-modal-close" aria-label="Close Voice Assistant">&times;</button>
+      
+      <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: #38bdf8; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.12); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3);">
+        <span class="active-dot-ping" style="width: 7px; height: 7px;"></span>
+        J.A.R.V.I.S. INTERFACE • AMBIENT VOICE ENGINE
+      </div>
+      <h3 style="margin: 8px 0 0; font-size: 1.45rem; color: #fff; font-family: 'Outfit', sans-serif; letter-spacing: -0.02em;">
+        Hands-Free Voice Dialogue
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; max-width: 440px; margin-left: auto; margin-right: auto;">
+        Speak aloud naturally to receive immediate spoken vocal responses from NextClaw, just like Tony Stark with J.A.R.V.I.S.
+      </p>
+
+      <!-- Pulsing Arc-Reactor Orb Visualizer -->
+      <div class="voice-orb-container" id="voice-orb-container">
+        <div class="voice-ring ring-outer"></div>
+        <div class="voice-ring ring-middle"></div>
+        <div class="voice-ring ring-inner"></div>
+        <div class="voice-orb-core">
+          <div class="voice-orb-inner-glow"></div>
+        </div>
+      </div>
+
+      <!-- Real-Time Equalizer Audio Frequency Waves -->
+      <div class="voice-equalizer-bars" id="voice-equalizer-bars">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+
+      <div id="voice-status-label" style="font-weight: 700; font-size: 0.95rem; color: #38bdf8; min-height: 24px; transition: color 0.2s;">
+        Tap Microphone to Speak to J.A.R.V.I.S.
+      </div>
+
+      <!-- Real-Time Live Transcript Box -->
+      <div class="voice-transcript-box" id="voice-modal-transcript">
+        "Say: 'What are the tuition instalment options for Fullstack Web Development?' or 'Explain the 80% refund policy.'"
+      </div>
+
+      <!-- Interactive Controls -->
+      <div class="voice-controls-row">
+        <button type="button" id="voice-modal-mic-toggle" class="btn-primary" style="padding: 10px 24px; border-radius: 30px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <span id="voice-mic-icon">🎙️</span> <span id="voice-mic-label">Start Speaking</span>
+        </button>
+
+        <button type="button" id="voice-stop-speech-btn" class="btn-ghost" style="display: none; padding: 10px 18px; border-radius: 30px; color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.4); font-weight: 700; align-items: center; gap: 6px;">
+          <span>⏹️</span> Stop Speaking
+        </button>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 0.8rem; color: var(--text-dim);" for="voice-picker-select">Persona:</label>
+          <select id="voice-picker-select" class="form-select" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 10px;">
+            <option value="jarvis" selected>🇬🇧 J.A.R.V.I.S. (British AI)</option>
+            <option value="prime">🇺🇸 NextClaw Prime (Authoritative Male)</option>
+            <option value="friday">🇬🇧 F.R.I.D.A.Y. (Intelligent Female)</option>
+            <option value="natural">🌐 Device Natural Voice</option>
+            <option value="alloy">☁️ OpenAI Alloy (Cloud Neural)</option>
+            <option value="echo">☁️ OpenAI Echo (Cloud Neural)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Hands-Free Continuous Loop Switch -->
+      <div style="margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.82rem; color: #cbd5e1; user-select: none;">
+          <input type="checkbox" id="voice-handsfree-checkbox" checked style="accent-color: #38bdf8; width: 16px; height: 16px; cursor: pointer;" />
+          <span>⚡ Continuous Hands-Free Dialogue (Auto-relisten after answering)</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

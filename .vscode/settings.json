@@ -1,0 +1,37 @@
+{
+  "python.defaultInterpreterPath": "C:\\Python313\\python.exe",
+  "python.terminal.activateEnvironment": true,
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.env.windows": {
+    "PYTHONPATH": "${workspaceFolder};C:\\Users\\chigb\\AppData\\Roaming\\Python\\Python313\\site-packages",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONUTF8": "1"
+  },
+  "python.envFile": "${workspaceFolder}/.env",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}",
+    "${workspaceFolder}/app",
+    "${workspaceFolder}/core",
+    "${workspaceFolder}/skills",
+    "${workspaceFolder}/api",
+    "${workspaceFolder}/agents",
+    "${workspaceFolder}/coding_agent",
+    "${workspaceFolder}/website_agent",
+    "C:/Users/chigb/AppData/Roaming/Python/Python313/site-packages"
+  ],
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}",
+    "${workspaceFolder}/app",
+    "${workspaceFolder}/core",
+    "${workspaceFolder}/skills",
+    "${workspaceFolder}/api",
+    "${workspaceFolder}/agents",
+    "${workspaceFolder}/coding_agent",
+    "${workspaceFolder}/website_agent",
+    "C:/Users/chigb/AppData/Roaming/Python/Python313/site-packages"
+  ],
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingImports": "none",
+    "reportMissingModuleSource": "none"
+  }
+}

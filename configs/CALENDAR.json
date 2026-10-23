@@ -1,0 +1,61 @@
+[
+  {
+    "id": "EVT-2026-OCT-ORIENT",
+    "title": "Nextserve October Cohort Orientation Webinar",
+    "type": "webinar",
+    "target_programmes": [
+      "All Programmes"
+    ],
+    "start_time": "2026-10-21T13:34:00.588976+00:00",
+    "duration_minutes": 90,
+    "location": "Live Zoom & YouTube Stream",
+    "link": "https://nextserveschool.com/orientation-live",
+    "description": "Meet faculty directors, review curriculum roadmaps, and understand LMS access.",
+    "reminders_sent": []
+  },
+  {
+    "id": "EVT-2026-OCT-COHORT",
+    "title": "October 2026 Cohort Official Kick-Off",
+    "type": "cohort_start",
+    "target_programmes": [
+      "Fullstack Web Development",
+      "AI & LLM Engineering",
+      "Cybersecurity"
+    ],
+    "start_time": "2026-10-28T09:34:00.588976+00:00",
+    "duration_minutes": 180,
+    "location": "Lagos Hub Campus & Virtual Classroom",
+    "link": "https://lms.nextserveschool.com",
+    "description": "Day 1 lectures, Git/GitHub setup, and development environment onboarding.",
+    "reminders_sent": []
+  },
+  {
+    "id": "EVT-2026-AI-MASTERCLASS",
+    "title": "Hands-On Generative AI & Autonomous Agents Masterclass",
+    "type": "masterclass",
+    "target_programmes": [
+      "AI & LLM Engineering",
+      "Tech Development Track"
+    ],
+    "start_time": "2026-11-04T09:34:00.588976+00:00",
+    "duration_minutes": 120,
+    "location": "Online Live Interactive",
+    "link": "https://nextserveschool.com/masterclass/ai-agents",
+    "description": "Building production RAG and agentic workflows with LangGraph and PostgreSQL.",
+    "reminders_sent": []
+  },
+  {
+    "id": "EVT-2026-CAPSTONE-DEF",
+    "title": "Q3 Capstone Project Defense & Demo Day",
+    "type": "exam",
+    "target_programmes": [
+      "Graduating Tech Cohort"
+    ],
+    "start_time": "2026-11-13T09:34:00.588976+00:00",
+    "duration_minutes": 240,
+    "location": "Lagos Hub & Virtual Stage",
+    "link": "https://nextserveschool.com/demoday",
+    "description": "Final portfolio project presentations before tech hiring partners.",
+    "reminders_sent": []
+  }
+]

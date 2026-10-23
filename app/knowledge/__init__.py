@@ -1,0 +1,18 @@
+"""NSITM School Knowledge Package."""
+from app.knowledge.nsitm_knowledge import (
+    INSTITUTION_INFO,
+    PROGRAMMES_DATA,
+    PAYMENT_INSTALMENT_RULES,
+    ACADEMIC_POLICIES,
+    ENROLLMENT_WORKFLOW,
+    FREQUENT_QUESTIONS,
+)
+
+__all__ = [
+    "INSTITUTION_INFO",
+    "PROGRAMMES_DATA",
+    "PAYMENT_INSTALMENT_RULES",
+    "ACADEMIC_POLICIES",
+    "ENROLLMENT_WORKFLOW",
+    "FREQUENT_QUESTIONS",
+]

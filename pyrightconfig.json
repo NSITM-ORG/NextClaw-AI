@@ -1,0 +1,36 @@
+{
+  "include": [
+    "."
+  ],
+  "extraPaths": [
+    ".",
+    "app",
+    "core",
+    "skills",
+    "api",
+    "agents",
+    "coding_agent",
+    "website_agent",
+    "C:/Users/chigb/AppData/Roaming/Python/Python313/site-packages"
+  ],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": [
+        ".",
+        "app",
+        "core",
+        "skills",
+        "api",
+        "agents",
+        "coding_agent",
+        "website_agent",
+        "C:/Users/chigb/AppData/Roaming/Python/Python313/site-packages"
+      ]
+    }
+  ],
+  "reportMissingImports": "none",
+  "reportMissingTypeStubs": false,
+  "pythonVersion": "3.13",
+  "pythonPlatform": "Windows"
+}

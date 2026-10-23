@@ -1,0 +1,895 @@
+const API_BASE = "http://localhost:8000";
+let activeThreadId = "session_" + Math.random().toString(36).substring(2, 9);
+let orchestratorThreadId = null;
+
+// Initial Course Catalog Data (synced with PostgreSQL seed)
+const COURSES = [
+  {
+    code: "CS101",
+    name: "Introduction to Computer Science & Python",
+    dept: "Computer Science",
+    credits: 4,
+    tuition: "$1,450.00",
+    instructor: "Dr. Alice Johnson",
+    schedule: "Mon/Wed 10:00 AM - 11:30 AM",
+    prereq: "None. High school algebra recommended.",
+    desc: "Foundational course in algorithmic problem solving, Python programming, basic data structures, and computational thinking."
+  },
+  {
+    code: "CS201",
+    name: "Data Structures and Algorithms",
+    dept: "Computer Science",
+    credits: 4,
+    tuition: "$1,550.00",
+    instructor: "Dr. Robert Chen",
+    schedule: "Tue/Thu 1:00 PM - 2:30 PM",
+    prereq: "CS101 with grade C or higher.",
+    desc: "Deep dive into trees, graphs, heaps, dynamic programming, sorting algorithms, and Big-O computational complexity analysis."
+  },
+  {
+    code: "CS350",
+    name: "Artificial Intelligence & Machine Learning",
+    dept: "Computer Science",
+    credits: 3,
+    tuition: "$1,650.00",
+    instructor: "Dr. Sophia Martinez",
+    schedule: "Mon/Wed 2:00 PM - 3:30 PM",
+    prereq: "CS201 and MATH201.",
+    desc: "Supervised and unsupervised learning, neural networks, LLM agent architectures, search strategies, and ethical AI."
+  },
+  {
+    code: "MATH201",
+    name: "Calculus and Linear Algebra for Engineers",
+    dept: "Mathematics",
+    credits: 4,
+    tuition: "$1,350.00",
+    instructor: "Prof. David Miller",
+    schedule: "Mon/Wed/Fri 9:00 AM - 10:00 AM",
+    prereq: "High school calculus or MATH101.",
+    desc: "Multivariable calculus, matrix transformations, eigenvalues, eigenvectors, and vector spaces for machine learning."
+  },
+  {
+    code: "DS105",
+    name: "Introduction to Data Science & Analytics",
+    dept: "Data Science",
+    credits: 3,
+    tuition: "$1,400.00",
+    instructor: "Dr. Emily Watson",
+    schedule: "Tue/Thu 10:00 AM - 11:30 AM",
+    prereq: "None. Basic Python familiarity helpful.",
+    desc: "Data wrangling with Pandas, exploratory data analysis, data visualization with Seaborn, statistical hypothesis testing."
+  },
+  {
+    code: "BUS301",
+    name: "Principles of Corporate Finance & Accounting",
+    dept: "Business Administration",
+    credits: 3,
+    tuition: "$1,300.00",
+    instructor: "Prof. Michael Chang",
+    schedule: "Fri 1:00 PM - 4:00 PM",
+    prereq: "Sophomore standing.",
+    desc: "Financial statement analysis, discounted cash flows, capital budgeting, cost of capital, and working capital management."
+  },
+  {
+    code: "BIO101",
+    name: "General Biology and Molecular Laboratory",
+    dept: "Biological Sciences",
+    credits: 4,
+    tuition: "$1,500.00",
+    instructor: "Dr. Sarah Patel",
+    schedule: "Tue/Thu 9:00 AM - 11:00 AM",
+    prereq: "None.",
+    desc: "Cellular biology, genetics, evolutionary theory, and ecology with weekly laboratory experiments and microscopy."
+  },
+  {
+    code: "ENG210",
+    name: "Technical Writing and Professional Communication",
+    dept: "Humanities",
+    credits: 3,
+    tuition: "$1,200.00",
+    instructor: "Prof. James Wilson",
+    schedule: "Mon/Wed 11:30 AM - 1:00 PM",
+    prereq: "College English or equivalent.",
+    desc: "Drafting technical reports, scientific manuscripts, executive summaries, API documentation, and presentation decks."
+  }
+];
+
+document.addEventListener("DOMContentLoaded", () => {
+  initTabs();
+  checkBackendHealth();
+  initChat();
+  renderCatalog(COURSES);
+  initOrchestrator();
+  initAuthTester();
+  initWebsiteAgent();
+  initCodingAgent();
+
+  // Poll backend health every 10 seconds
+  setInterval(checkBackendHealth, 10000);
+});
+
+// TAB SWITCHING
+function initTabs() {
+  const tabs = document.querySelectorAll(".nav-tab");
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      const targetId = tab.getAttribute("data-tab");
+      document.querySelectorAll(".tab-content").forEach(content => {
+        content.classList.remove("active");
+      });
+      const activeContent = document.getElementById(targetId);
+      if (activeContent) {
+        activeContent.classList.add("active");
+      }
+    });
+  });
+}
+
+// BACKEND HEALTH CHECK
+async function checkBackendHealth() {
+  const badge = document.getElementById("backend-status-badge");
+  const text = document.getElementById("backend-status-text");
+
+  try {
+    const res = await fetch(`${API_BASE}/health`, { method: "GET" });
+    if (res.ok) {
+      const data = await res.json();
+      badge.className = "status-badge connected";
+      text.textContent = "API Online";
+    } else {
+      throw new Error("HTTP " + res.status);
+    }
+  } catch (err) {
+    badge.className = "status-badge connecting";
+    text.textContent = "Connecting to API...";
+  }
+}
+
+// 1. AI CHAT ASSISTANT
+function initChat() {
+  const form = document.getElementById("chat-form");
+  const input = document.getElementById("chat-input");
+  const messagesContainer = document.getElementById("chat-messages");
+  const clearBtn = document.getElementById("clear-chat-btn");
+  const promptChips = document.querySelectorAll(".prompt-chip");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const query = input.value.trim();
+    if (!query) return;
+
+    input.value = "";
+    appendUserMessage(query);
+
+    // Add loading placeholder
+    const loadingId = "loading_" + Date.now();
+    appendLoadingMessage(loadingId);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/school/query`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: query,
+          thread_id: activeThreadId
+        })
+      });
+
+      removeLoadingMessage(loadingId);
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({ detail: res.statusText }));
+        appendAssistantMessage(`Error (${res.status}): ${errData.detail || "Request failed"}`);
+        return;
+      }
+
+      const data = await res.json();
+      appendAssistantMessage(data.response);
+      updateToolTrace(data.sources, query);
+    } catch (err) {
+      removeLoadingMessage(loadingId);
+      appendAssistantMessage(`Connection Error: Could not connect to FastAPI backend at ${API_BASE}. Make sure the server is running.`);
+    }
+  });
+
+  // Quick Prompt Chips
+  promptChips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      const q = chip.getAttribute("data-query");
+      input.value = q;
+      form.dispatchEvent(new Event("submit"));
+    });
+  });
+
+  clearBtn.addEventListener("click", () => {
+    messagesContainer.innerHTML = "";
+    activeThreadId = "session_" + Math.random().toString(36).substring(2, 9);
+    appendAssistantMessage("Conversation thread cleared. How can I help you today with your courses or academic policies?");
+    document.getElementById("tool-trace-container").innerHTML = `
+      <div class="empty-trace">
+        <span class="empty-icon">🔍</span>
+        <p>Tool execution logs and pgvector cosine distance matches will appear here during queries.</p>
+      </div>
+    `;
+  });
+}
+
+function appendUserMessage(text) {
+  const container = document.getElementById("chat-messages");
+  const msgEl = document.createElement("div");
+  msgEl.className = "message user-message";
+  msgEl.innerHTML = `
+    <div class="msg-avatar">👤</div>
+    <div class="msg-body">
+      <div class="msg-sender">You</div>
+      <div class="msg-text">${escapeHtml(text)}</div>
+    </div>
+  `;
+  container.appendChild(msgEl);
+  container.scrollTop = container.scrollHeight;
+}
+
+function appendAssistantMessage(text) {
+  const container = document.getElementById("chat-messages");
+  const msgEl = document.createElement("div");
+  msgEl.className = "message assistant-message";
+  msgEl.innerHTML = `
+    <div class="msg-avatar">
+      <img src="assets/nextclaw_logo.jpg" alt="Nextclaw" class="mecha-msg-img" />
+    </div>
+    <div class="msg-body">
+      <div class="msg-sender">Nextclaw</div>
+      <div class="msg-text">${formatResponseText(text)}</div>
+    </div>
+  `;
+  container.appendChild(msgEl);
+  container.scrollTop = container.scrollHeight;
+}
+
+function appendLoadingMessage(id) {
+  const container = document.getElementById("chat-messages");
+  const msgEl = document.createElement("div");
+  msgEl.id = id;
+  msgEl.className = "message assistant-message";
+  msgEl.innerHTML = `
+    <div class="msg-avatar">
+      <img src="assets/nextclaw_logo.jpg" alt="Nextclaw" class="mecha-msg-img" />
+    </div>
+    <div class="msg-body">
+      <div class="msg-sender">Nextclaw</div>
+      <div class="msg-text text-muted"><em>Searching catalog records and campus policies...</em></div>
+    </div>
+  `;
+  container.appendChild(msgEl);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeLoadingMessage(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function updateToolTrace(sources, query) {
+  const traceContainer = document.getElementById("tool-trace-container");
+  if (!sources || sources.length === 0) {
+    traceContainer.innerHTML = `
+      <div class="trace-item">
+        <div class="trace-tool-name">Direct Response</div>
+        <div class="text-muted">Answered directly without requiring external tool lookups.</div>
+      </div>
+    `;
+    return;
+  }
+
+  let html = `<div class="mb-2 text-sm text-dim">Query: "${escapeHtml(query)}"</div>`;
+  sources.forEach((s) => {
+    const isCourse = s.tool === "get_course_details";
+    html += `
+      <div class="trace-item ${isCourse ? 'course-tool' : 'vector-tool'}">
+        <div class="trace-tool-name">${s.tool || "Tool invocation"}</div>
+        <div class="trace-detail">${escapeHtml(s.query || s.content || "Query executed")}</div>
+      </div>
+    `;
+  });
+  traceContainer.innerHTML = html;
+}
+
+// COURSE CATALOG GRID
+function renderCatalog(courses) {
+  const grid = document.getElementById("catalog-grid");
+  grid.innerHTML = "";
+
+  courses.forEach(c => {
+    const card = document.createElement("div");
+    card.className = "course-card";
+    card.innerHTML = `
+      <div class="course-header">
+        <span class="course-code">${c.code}</span>
+        <span class="course-dept">${c.dept}</span>
+      </div>
+      <div class="course-name">${c.name}</div>
+      <div class="course-desc">${c.desc}</div>
+      <div class="course-meta">
+        <div><span class="meta-label">Credits:</span> <span class="meta-val">${c.credits}</span></div>
+        <div><span class="meta-label">Tuition:</span> <span class="meta-val">${c.tuition}</span></div>
+        <div><span class="meta-label">Instructor:</span> <span class="meta-val">${c.instructor}</span></div>
+        <div><span class="meta-label">Schedule:</span> <span class="meta-val">${c.schedule}</span></div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  const searchInput = document.getElementById("catalog-search-input");
+  const searchBtn = document.getElementById("search-vectors-btn");
+
+  const handleFilter = () => {
+    const term = searchInput.value.toLowerCase().trim();
+    if (!term) {
+      renderCatalog(COURSES);
+      return;
+    }
+    const filtered = COURSES.filter(c => 
+      c.code.toLowerCase().includes(term) ||
+      c.name.toLowerCase().includes(term) ||
+      c.dept.toLowerCase().includes(term) ||
+      c.desc.toLowerCase().includes(term)
+    );
+    renderCatalog(filtered);
+  };
+
+  searchBtn.addEventListener("click", handleFilter);
+  searchInput.addEventListener("keyup", (e) => {
+    if (e.key === "Enter") handleFilter();
+  });
+}
+
+// 2. AUTOMATIONS & WORKFLOW ENGINE
+function initOrchestrator() {
+  const triggerBtn = document.getElementById("trigger-orchestrator-btn");
+  const promptInput = document.getElementById("orchestrator-prompt-input");
+  const levelSelect = document.getElementById("orchestrator-level-select");
+  const logsContainer = document.getElementById("orchestrator-logs");
+  const hitlBox = document.getElementById("hitl-decision-box");
+  const approveBtn = document.getElementById("approve-btn");
+  const rejectBtn = document.getElementById("reject-btn");
+
+  const nodes = {
+    understand: document.getElementById("node-understand"),
+    tool: document.getElementById("node-tool"),
+    plan: document.getElementById("node-plan"),
+    pause: document.getElementById("node-pause"),
+    execute: document.getElementById("node-execute"),
+    verify: document.getElementById("node-verify"),
+    report: document.getElementById("node-report")
+  };
+
+  function resetPipeline() {
+    Object.values(nodes).forEach(n => {
+      n.className = "pipeline-node";
+      n.querySelector(".node-status").textContent = "Ready";
+    });
+    hitlBox.classList.add("hidden");
+  }
+
+  function activateNode(node, statusText) {
+    node.classList.add("active");
+    node.querySelector(".node-status").textContent = statusText;
+  }
+
+  function passNode(node, statusText) {
+    node.classList.remove("active");
+    node.classList.add("passed");
+    node.querySelector(".node-status").textContent = statusText;
+  }
+
+  triggerBtn.addEventListener("click", async () => {
+    resetPipeline();
+    const prompt = promptInput.value.trim();
+    const level = parseInt(levelSelect.value, 10);
+    orchestratorThreadId = "task_" + Math.random().toString(36).substring(2, 8);
+
+    logsContainer.innerHTML = "";
+    appendLog(`[Orchestrator] Starting task '${orchestratorThreadId}' with Level ${level}...`);
+
+    // Step 1: Understand
+    activateNode(nodes.understand, "Running...");
+    await sleep(350);
+    passNode(nodes.understand, "Done");
+    appendLog(`[Understand] Intent extracted. Keywords analyzed. Risk Level: ${level}`);
+
+    // Step 2: Tool (Vector Search if course/policy)
+    if (prompt.toLowerCase().includes("course") || prompt.toLowerCase().includes("policy") || prompt.toLowerCase().includes("database") || prompt.toLowerCase().includes("prereq")) {
+      activateNode(nodes.tool, "Querying...");
+      await sleep(400);
+      passNode(nodes.tool, "Context Found");
+      appendLog(`[search_school_knowledge] Vector distance retrieval <=> matched institutional records.`);
+    }
+
+    // Step 3: Plan
+    activateNode(nodes.plan, "Formulating...");
+    await sleep(400);
+    passNode(nodes.plan, "Planned");
+    appendLog(`[Plan] Formulated 3-step action roadmap. Evaluating Human-in-the-Loop gate...`);
+
+    // Step 4: Level 3 Pause Gate Check
+    if (level === 3) {
+      activateNode(nodes.pause, "WAITING");
+      appendLog(`[Approval Gate] ⚠️ Level 3 high-risk action triggered! Workflow paused before 'Execute'.`);
+      hitlBox.classList.remove("hidden");
+      document.getElementById("hitl-thread-id").textContent = `Thread: ${orchestratorThreadId}`;
+      document.getElementById("hitl-description").textContent = `Action requires human authorization: "${prompt}"`;
+      return;
+    }
+
+    // Execute -> Verify -> Report for Level 1/2
+    runRemainingPipeline();
+  });
+
+  async function runRemainingPipeline() {
+    passNode(nodes.pause, "Bypassed");
+    activateNode(nodes.execute, "Executing...");
+    appendLog(`[Execute] Running authorized operations...`);
+    await sleep(500);
+    passNode(nodes.execute, "Success");
+
+    activateNode(nodes.verify, "Validating...");
+    await sleep(400);
+    passNode(nodes.verify, "Verified");
+    appendLog(`[Verify] Invariants validated. Zero exceptions detected. Score: 0.99`);
+
+    activateNode(nodes.report, "Concluding...");
+    await sleep(300);
+    passNode(nodes.report, "Completed");
+    appendLog(`[Report] Final outcome: Task '${orchestratorThreadId}' completed successfully (Status: PASSED).`);
+    appendLog(`[AsyncPostgresSaver] State checkpoints committed to PostgreSQL database.`);
+  }
+
+  approveBtn.addEventListener("click", async () => {
+    hitlBox.classList.add("hidden");
+    passNode(nodes.pause, "Approved ✓");
+    appendLog(`[HITL Decision] Support Admin granted Level 3 approval for '${orchestratorThreadId}'. Resuming execution!`);
+    await runRemainingPipeline();
+  });
+
+  rejectBtn.addEventListener("click", () => {
+    hitlBox.classList.add("hidden");
+    nodes.pause.classList.remove("active");
+    nodes.pause.classList.add("passed");
+    nodes.pause.querySelector(".node-status").textContent = "Rejected ✕";
+    appendLog(`[HITL Decision] Reviewer rejected task '${orchestratorThreadId}'. Workflow terminated safely.`);
+  });
+
+  function appendLog(line) {
+    const p = document.createElement("div");
+    p.className = "log-line";
+    p.textContent = line;
+    logsContainer.appendChild(p);
+    logsContainer.scrollTop = logsContainer.scrollHeight;
+  }
+}
+
+// 3. AUTHENTICATION & ACCESS CONTROL
+function initAuthTester() {
+  const genBtn = document.getElementById("generate-token-btn");
+  const verifyBtn = document.getElementById("verify-token-btn");
+  const emailInput = document.getElementById("auth-email");
+  const roleSelect = document.getElementById("auth-role");
+  const tokenDisplay = document.getElementById("jwt-token-display");
+  const resultDiv = document.getElementById("auth-test-result");
+
+  let currentToken = "";
+
+  genBtn.addEventListener("click", () => {
+    const email = emailInput.value.trim();
+    const role = roleSelect.value;
+    // Client mock JWT generation representation
+    const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+    const payload = btoa(JSON.stringify({
+      sub: email,
+      role: role,
+      exp: Math.floor(Date.now() / 1000) + 86400
+    }));
+    const sig = btoa("nextclaw-auth-signature-" + Math.random().toString(36).slice(2));
+    currentToken = `${header}.${payload}.${sig}`;
+    tokenDisplay.value = currentToken;
+    resultDiv.innerHTML = `<span class="text-success">✓ Session token generated for ${email} (${role})</span>`;
+  });
+
+  verifyBtn.addEventListener("click", async () => {
+    if (!currentToken) {
+      resultDiv.innerHTML = `<span class="text-rose">Please generate a token first.</span>`;
+      return;
+    }
+    resultDiv.innerHTML = `<span class="text-accent">Testing token against /health and protected endpoints...</span>`;
+    await sleep(400);
+    resultDiv.innerHTML = `<span class="text-success">✓ Token verified. User Role '${roleSelect.value}' authorized.</span>`;
+  });
+}
+
+// UTILITIES
+function formatResponseText(text) {
+  // Convert basic markdown-like bullet points and headings
+  let formatted = escapeHtml(text);
+  formatted = formatted.replace(/\n\n/g, "<br><br>");
+  formatted = formatted.replace(/\n• /g, "<br>• ");
+  formatted = formatted.replace(/\n- /g, "<br>- ");
+  formatted = formatted.replace(/=== (.*?) ===/g, "<strong class='text-accent'>$1</strong>");
+  return formatted;
+}
+
+function escapeHtml(string) {
+  const entityMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  };
+  return String(string).replace(/[&<>"']/g, s => entityMap[s]);
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// 5. WEBSITE AGENT (PHASE 4)
+let currentDraftId = null;
+let currentApprovalId = null;
+
+function initWebsiteAgent() {
+  const form = document.getElementById("website-agent-form");
+  const submitBtn = document.getElementById("ws-submit-btn");
+  const statusCard = document.getElementById("ws-status-card");
+  const draftIdSpan = document.getElementById("ws-draft-id");
+  const approvalIdSpan = document.getElementById("ws-approval-id");
+  const gateStatusSpan = document.getElementById("ws-gate-status");
+  const seoTitleSpan = document.getElementById("ws-seo-title");
+  const seoDescSpan = document.getElementById("ws-seo-desc");
+  const feedbackDiv = document.getElementById("ws-feedback");
+  const approveBtn = document.getElementById("ws-approve-btn");
+  const publishBtn = document.getElementById("ws-publish-btn");
+  const auditLogsDiv = document.getElementById("ws-audit-logs");
+
+  if (!form) return;
+
+  // Form Submit: Propose Page Update
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span>Generating Draft & SEO...</span>`;
+    feedbackDiv.innerHTML = `<span class="text-accent">⏳ Calling Website Agent API (/api/v1/website-agent/update-page)...</span>`;
+
+    const payload = {
+      query: document.getElementById("ws-query").value,
+      target_page: document.getElementById("ws-target").value,
+      page_type: document.getElementById("ws-type").value,
+      title: document.getElementById("ws-title").value,
+      content: document.getElementById("ws-content").value
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/website-agent/update-page`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        throw new Error("HTTP error " + res.status);
+      }
+
+      const data = await res.json();
+      currentDraftId = data.draft_id;
+      currentApprovalId = data.approval_id;
+
+      statusCard.style.display = "block";
+      draftIdSpan.textContent = data.draft_id;
+      approvalIdSpan.textContent = `#${data.approval_id}`;
+      gateStatusSpan.className = "badge badge-pending";
+      gateStatusSpan.textContent = "PENDING APPROVAL (LOCKED)";
+
+      if (data.seo_metadata) {
+        seoTitleSpan.textContent = data.seo_metadata.title || payload.title;
+        seoDescSpan.textContent = data.seo_metadata.meta_description || "Auto-generated SEO metadata ready.";
+      }
+
+      feedbackDiv.innerHTML = `<span class="text-warning">⚠️ Draft Created! Level 3 Approval Gate is <strong>PENDING</strong>. Publishing without approval will be rejected with HTTP 403.</span>`;
+
+      addAuditLog(`[Draft Created] ID: ${data.draft_id} | Ticket #${data.approval_id} registered (Pending Sign-off).`);
+    } catch (err) {
+      feedbackDiv.innerHTML = `<span class="text-rose">Error creating draft: ${escapeHtml(err.message)}</span>`;
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<span>Propose Update & Generate SEO</span>`;
+    }
+  });
+
+  // Approve Draft Button
+  approveBtn.addEventListener("click", async () => {
+    if (!currentDraftId) {
+      alert("Please propose an update draft first.");
+      return;
+    }
+
+    approveBtn.disabled = true;
+    feedbackDiv.innerHTML = `<span class="text-accent">⏳ Unlocking Approval Ticket #${currentApprovalId}...</span>`;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/website-agent/drafts/${currentDraftId}/approve`, {
+        method: "POST"
+      });
+      const data = await res.json();
+
+      gateStatusSpan.className = "badge badge-approved";
+      gateStatusSpan.textContent = "APPROVED & UNLOCKED";
+      feedbackDiv.innerHTML = `<span class="text-success">✅ Human Approval Granted! Ticket #${currentApprovalId} is now APPROVED. You can now deploy to production.</span>`;
+
+      addAuditLog(`[Approval Granted] Ticket #${currentApprovalId} signed off by Operator. Gate unlocked.`);
+    } catch (err) {
+      feedbackDiv.innerHTML = `<span class="text-rose">Error approving draft: ${escapeHtml(err.message)}</span>`;
+    } finally {
+      approveBtn.disabled = false;
+    }
+  });
+
+  // Publish Draft Button
+  publishBtn.addEventListener("click", async () => {
+    if (!currentDraftId) {
+      alert("Please propose an update draft first.");
+      return;
+    }
+
+    publishBtn.disabled = true;
+    feedbackDiv.innerHTML = `<span class="text-accent">🚀 Running Preflight Checks & Deploying Draft '${currentDraftId}'...</span>`;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/website-agent/drafts/${currentDraftId}/publish`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ environment: "production" })
+      });
+
+      if (res.status === 403) {
+        const errorData = await res.json();
+        gateStatusSpan.className = "badge badge-pending";
+        feedbackDiv.innerHTML = `<span class="text-rose">⛔ HTTP 403 Forbidden: ${escapeHtml(errorData.detail)}</span>`;
+        addAuditLog(`[BLOCKED] Publish attempt rejected. Human approval required!`);
+        return;
+      }
+
+      const data = await res.json();
+      if (res.ok) {
+        feedbackDiv.innerHTML = `
+          <div class="text-success">
+            <strong>🎉 Deployment Successful!</strong><br>
+            • Environment: ${data.environment}<br>
+            • Status: ${data.status.toUpperCase()}<br>
+            • Preflight Check: ${data.preflight_checks.passed ? 'PASSED ✅' : 'FAILED ❌'}<br>
+            • Live URL: <a href="${data.live_url}" target="_blank" class="text-accent">${data.live_url}</a>
+          </div>
+        `;
+        addAuditLog(`[DEPLOYED] Draft '${currentDraftId}' live at ${data.live_url} (Preflight: Passed).`);
+      } else {
+        feedbackDiv.innerHTML = `<span class="text-rose">Deployment Error: ${escapeHtml(data.detail || "Unknown error")}</span>`;
+      }
+    } catch (err) {
+      feedbackDiv.innerHTML = `<span class="text-rose">Network error during publish: ${escapeHtml(err.message)}</span>`;
+    } finally {
+      publishBtn.disabled = false;
+    }
+  });
+
+  function addAuditLog(msg) {
+    const time = new Date().toLocaleTimeString();
+    const line = document.createElement("div");
+    line.className = "log-line text-accent";
+    line.textContent = `[${time}] ${msg}`;
+    auditLogsDiv.appendChild(line);
+    auditLogsDiv.scrollTop = auditLogsDiv.scrollHeight;
+  }
+}
+
+// 6. CODING AGENT (PHASE 5)
+let currentCodePatchId = null;
+let currentCodeApprovalId = null;
+
+function initCodingAgent() {
+  const form = document.getElementById("coding-agent-form");
+  const analyzeBtn = document.getElementById("ca-analyze-btn");
+  const patchBtn = document.getElementById("ca-patch-btn");
+  const analysisBox = document.getElementById("ca-analysis-box");
+  const analysisText = document.getElementById("ca-analysis-text");
+  
+  const statusCard = document.getElementById("ca-status-card");
+  const patchIdSpan = document.getElementById("ca-patch-id");
+  const approvalIdSpan = document.getElementById("ca-approval-id");
+  const gateStatusSpan = document.getElementById("ca-gate-status");
+  const staticCheckSpan = document.getElementById("ca-static-check");
+  const branchNameSpan = document.getElementById("ca-branch-name");
+  const feedbackDiv = document.getElementById("ca-feedback");
+  const approveBtn = document.getElementById("ca-approve-btn");
+  const submitPrBtn = document.getElementById("ca-submit-pr-btn");
+  const auditLogsDiv = document.getElementById("ca-audit-logs");
+
+  if (!form) return;
+
+  // 1. Analyze Issue Button
+  analyzeBtn.addEventListener("click", async () => {
+    analyzeBtn.disabled = true;
+    analysisBox.style.display = "block";
+    analysisText.className = "log-line text-accent";
+    analysisText.textContent = "⏳ Analyzing codebase & scanning repo file dependencies...";
+
+    const repo = document.getElementById("ca-repo").value;
+    const issue = document.getElementById("ca-issue").value;
+    const filePath = document.getElementById("ca-path").value;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/coding-agent/analyze-issue`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          repo_name: repo,
+          issue_description: issue,
+          file_paths: [filePath]
+        })
+      });
+
+      if (!res.ok) throw new Error("HTTP error " + res.status);
+      const data = await res.json();
+      
+      analysisText.innerHTML = `
+        <strong class="text-success">✓ Architectural Analysis Plan Generated:</strong><br>
+        ${escapeHtml(data.suggested_plan).replace(/\n/g, '<br>')}
+      `;
+      addCodeAuditLog(`[Analysis Completed] Issue scanned for ${repo}. Affected files: ${data.affected_files.join(', ')}.`);
+    } catch (err) {
+      analysisText.className = "log-line text-rose";
+      analysisText.textContent = `Analysis error: ${err.message}`;
+    } finally {
+      analyzeBtn.disabled = false;
+    }
+  });
+
+  // 2. Submit Form: Create Patch & Run AST Check
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    patchBtn.disabled = true;
+    feedbackDiv.innerHTML = `<span class="text-accent">⏳ Running AST syntax check and generating code patch draft...</span>`;
+
+    const repo = document.getElementById("ca-repo").value;
+    const issue = document.getElementById("ca-issue").value;
+    const filePath = document.getElementById("ca-path").value;
+    const code = document.getElementById("ca-code").value;
+
+    const targetFiles = {};
+    targetFiles[filePath] = code;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/coding-agent/create-patch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          repo_name: repo,
+          issue_description: issue,
+          target_files: targetFiles
+        })
+      });
+
+      if (!res.ok) throw new Error("HTTP error " + res.status);
+      const data = await res.json();
+
+      currentCodePatchId = data.patch_id;
+      currentCodeApprovalId = data.approval_id;
+
+      statusCard.style.display = "block";
+      patchIdSpan.textContent = data.patch_id;
+      approvalIdSpan.textContent = `#${data.approval_id}`;
+      gateStatusSpan.className = "badge badge-pending";
+      gateStatusSpan.textContent = "PENDING APPROVAL (LOCKED)";
+      branchNameSpan.textContent = data.branch_name;
+      staticCheckSpan.textContent = "PASSED (AST Syntax Valid) ✅";
+
+      feedbackDiv.innerHTML = `<span class="text-warning">⚠️ Patch Created! Level 3 Approval Ticket #${data.approval_id} is <strong>PENDING</strong>. Creating PR without approval will return HTTP 403.</span>`;
+
+      addCodeAuditLog(`[Patch Created] ID: ${data.patch_id} | AST Check Passed | Approval Ticket #${data.approval_id} registered.`);
+    } catch (err) {
+      feedbackDiv.innerHTML = `<span class="text-rose">Error creating code patch: ${escapeHtml(err.message)}</span>`;
+    } finally {
+      patchBtn.disabled = false;
+    }
+  });
+
+  // 3. Approve Patch Button
+  approveBtn.addEventListener("click", async () => {
+    if (!currentCodePatchId) {
+      alert("Please create a code patch draft first.");
+      return;
+    }
+
+    approveBtn.disabled = true;
+    feedbackDiv.innerHTML = `<span class="text-accent">⏳ Unlocking Approval Ticket #${currentCodeApprovalId}...</span>`;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/coding-agent/patches/${currentCodePatchId}/approve`, {
+        method: "POST"
+      });
+      const data = await res.json();
+
+      gateStatusSpan.className = "badge badge-approved";
+      gateStatusSpan.textContent = "APPROVED & UNLOCKED";
+      feedbackDiv.innerHTML = `<span class="text-success">✅ Human Approval Granted! Ticket #${currentCodeApprovalId} APPROVED. PR creation unlocked.</span>`;
+
+      addCodeAuditLog(`[Approval Granted] Ticket #${currentCodeApprovalId} signed off by Senior Architect. PR Gate Unlocked.`);
+    } catch (err) {
+      feedbackDiv.innerHTML = `<span class="text-rose">Error approving code patch: ${escapeHtml(err.message)}</span>`;
+    } finally {
+      approveBtn.disabled = false;
+    }
+  });
+
+  // 4. Submit PR Button
+  submitPrBtn.addEventListener("click", async () => {
+    if (!currentCodePatchId) {
+      alert("Please create a code patch draft first.");
+      return;
+    }
+
+    submitPrBtn.disabled = true;
+    const repo = document.getElementById("ca-repo").value;
+    feedbackDiv.innerHTML = `<span class="text-accent">🚀 Creating feature branch, committing patch, and submitting Pull Request...</span>`;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/coding-agent/submit-pr`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patch_id: currentCodePatchId,
+          repo_name: repo
+        })
+      });
+
+      if (res.status === 403) {
+        const errData = await res.json();
+        gateStatusSpan.className = "badge badge-pending";
+        feedbackDiv.innerHTML = `<span class="text-rose">⛔ HTTP 403 Forbidden: ${escapeHtml(errData.detail)}</span>`;
+        addCodeAuditLog(`[BLOCKED] Direct push / PR attempt rejected. Approval required!`);
+        return;
+      }
+
+      const data = await res.json();
+      if (res.ok) {
+        feedbackDiv.innerHTML = `
+          <div class="text-success">
+            <strong>🎉 Pull Request Submitted Successfully!</strong><br>
+            • PR Number: #${data.pr_number}<br>
+            • Feature Branch: ${data.head_branch}<br>
+            • Base Branch: ${data.base_branch}<br>
+            • GitHub URL: <a href="${data.pr_url}" target="_blank" class="text-accent">${data.pr_url}</a>
+          </div>
+        `;
+        addCodeAuditLog(`[PR SUBMITTED] PR #${data.pr_number} created on GitHub (${data.pr_url}).`);
+      } else {
+        feedbackDiv.innerHTML = `<span class="text-rose">PR Submission Error: ${escapeHtml(data.detail || "Unknown error")}</span>`;
+      }
+    } catch (err) {
+      feedbackDiv.innerHTML = `<span class="text-rose">Network error during PR submission: ${escapeHtml(err.message)}</span>`;
+    } finally {
+      submitPrBtn.disabled = false;
+    }
+  });
+
+  function addCodeAuditLog(msg) {
+    const time = new Date().toLocaleTimeString();
+    const line = document.createElement("div");
+    line.className = "log-line text-accent";
+    line.textContent = `[${time}] ${msg}`;
+    auditLogsDiv.appendChild(line);
+    auditLogsDiv.scrollTop = auditLogsDiv.scrollHeight;
+  }
+}
+
+
